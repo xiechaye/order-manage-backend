@@ -46,6 +46,12 @@ public class Order {
     private String customerEmail;
     
     /**
+     * 车牌号（可选）
+     * 客户车辆的牌照号码，可重复，可为空
+     */
+    private String licensePlate;
+    
+    /**
      * 产品名称
      * 订单中产品的名称
      */
@@ -101,5 +107,6 @@ public class Order {
      * 使用MyBatis-Plus的逻辑删除功能
      */
     @TableLogic
-    private Integer deleted;
+    @TableField(fill = FieldFill.INSERT)
+    private Integer deleted = 0;
 }
