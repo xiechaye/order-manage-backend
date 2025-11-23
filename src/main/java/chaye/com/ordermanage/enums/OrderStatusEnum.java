@@ -1,11 +1,9 @@
 package chaye.com.ordermanage.enums;
 
 public enum OrderStatusEnum {
-    PENDING(0, "待处理"),
-    CONFIRMED(1, "已确认"),
-    SHIPPED(2, "已发货"),
-    COMPLETED(3, "已完成"),
-    CANCELLED(4, "已取消");
+    PENDING_PICKUP(0, "待取货"),
+    COMPLETED(1, "已完成"),
+    CANCELLED(2, "已取消");
     
     private final Integer code;
     private final String description;

@@ -27,7 +27,14 @@ public class OrderController {
             @RequestParam(defaultValue = "10") @Min(1) int pageSize,
             @RequestParam(required = false) String keyword) {
 
-        IPage<Order> page = orderService.pageOrders(currentPage, pageSize, keyword);
+        IPage<Order> page; 
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            // 原有keyword搜索逻辑保持不变，用于基础搜索
+            page = orderService.pageOrders(currentPage, pageSize, keyword);
+        } else {
+            // 无关键字时返回所有订单
+            page = orderService.pageOrders(currentPage, pageSize, null);
+        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
@@ -39,13 +46,36 @@ public class OrderController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/license-plate")
-    public ResponseEntity<Map<String, Object>> searchByLicensePlate(
+    /**
+     * 统一的订单查询接口，支持多条件组合查询
+     * 支持参数：订单号、客户姓名、车牌号、订单状态、创建日期范围等
+     */
+    @GetMapping("/search")
+    public ResponseEntity<Map<String, Object>> searchOrders(
             @RequestParam(defaultValue = "1") @Min(1) int currentPage,
             @RequestParam(defaultValue = "10") @Min(1) int pageSize,
-            @RequestParam(required = true) String licensePlate) {
+            @RequestParam(required = false) String orderNo,
+            @RequestParam(required = false) String customerName,
+            @RequestParam(required = false) String licensePlate,
+            @RequestParam(required = false) Integer orderStatus,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
 
-        IPage<Order> page = orderService.searchByLicensePlate(currentPage, pageSize, licensePlate);
+        // 如果所有条件都为空，则返回所有订单
+        boolean hasSearchCriteria = (orderNo != null && !orderNo.trim().isEmpty()) ||
+                (customerName != null && !customerName.trim().isEmpty()) ||
+                (licensePlate != null && !licensePlate.trim().isEmpty()) ||
+                (orderStatus != null) ||
+                (startDate != null && !startDate.trim().isEmpty()) ||
+                (endDate != null && !endDate.trim().isEmpty());
+
+        IPage<Order> page;
+        if (hasSearchCriteria) {
+            page = orderService.searchOrders(currentPage, pageSize, orderNo, customerName, licensePlate, orderStatus, startDate, endDate);
+        } else {
+            // 没有搜索条件时，返回所有订单
+            page = orderService.pageOrders(currentPage, pageSize, null);
+        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
@@ -53,6 +83,7 @@ public class OrderController {
         result.put("total", page.getTotal());
         result.put("currentPage", page.getCurrent());
         result.put("pageSize", page.getSize());
+        result.put("hasSearchCriteria", hasSearchCriteria);
 
         return ResponseEntity.ok(result);
     }

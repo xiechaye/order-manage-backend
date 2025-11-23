@@ -5,7 +5,6 @@ import chaye.com.ordermanage.mapper.OrderMapper;
 import chaye.com.ordermanage.service.OrderService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
@@ -34,21 +34,57 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
     
     @Override
-    public IPage<Order> searchByLicensePlate(int currentPage, int pageSize, String licensePlate) {
+    public IPage<Order> searchOrders(int currentPage, int pageSize, String orderNo, String customerName, String licensePlate, Integer orderStatus, String startDate, String endDate) {
         Page<Order> page = new Page<>(currentPage, pageSize);
         
-        if (licensePlate != null && !licensePlate.trim().isEmpty()) {
-            LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
-            wrapper.like(Order::getLicensePlate, licensePlate.trim())
-                   .orderByDesc(Order::getCreatedAt);
-            return page(page, wrapper);
-        } else {
-            // 如果没有提供车牌号，返回空结果
-            LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
-            wrapper.isNull(Order::getLicensePlate)
-                   .orderByDesc(Order::getCreatedAt);
-            return page(page, wrapper);
+        LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
+        
+        // 根据订单号模糊查询
+        if (orderNo != null && !orderNo.trim().isEmpty()) {
+            wrapper.like(Order::getOrderNo, orderNo.trim());
         }
+        
+        // 根据客户姓名模糊查询
+        if (customerName != null && !customerName.trim().isEmpty()) {
+            wrapper.like(Order::getCustomerName, customerName.trim());
+        }
+        
+        // 根据车牌号模糊查询
+        if (licensePlate != null && !licensePlate.trim().isEmpty()) {
+            wrapper.like(Order::getLicensePlate, licensePlate.trim());
+        }
+        
+        // 根据订单状态筛选
+        if (orderStatus != null) {
+            wrapper.eq(Order::getOrderStatus, orderStatus);
+        }
+        
+        // 根据日期范围查询
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        
+        if (startDate != null && !startDate.trim().isEmpty()) {
+            try {
+                LocalDateTime startDateTime = LocalDateTime.parse(startDate + "T00:00:00");
+                wrapper.ge(Order::getCreatedAt, startDateTime);
+            } catch (Exception e) {
+                // 忽略格式错误，继续执行
+            }
+        }
+        
+        if (endDate != null && !endDate.trim().isEmpty()) {
+            try {
+                LocalDateTime endDateTime = LocalDateTime.parse(endDate + "T23:59:59");
+                wrapper.le(Order::getCreatedAt, endDateTime);
+            } catch (Exception e) {
+                // 忽略格式错误，继续执行
+            }
+        }
+        
+        // 添加逻辑删除过滤和排序
+        wrapper.eq(Order::getDeleted, 0)
+               .orderByDesc(Order::getCreatedAt);
+        
+        return page(page, wrapper);
     }
     
     @Override

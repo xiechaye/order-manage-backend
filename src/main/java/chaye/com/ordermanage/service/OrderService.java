@@ -8,7 +8,7 @@ public interface OrderService extends IService<Order> {
     
     IPage<Order> pageOrders(int currentPage, int pageSize, String keyword);
     
-    IPage<Order> searchByLicensePlate(int currentPage, int pageSize, String licensePlate);
+    IPage<Order> searchOrders(int currentPage, int pageSize, String orderNo, String customerName, String licensePlate, Integer orderStatus, String startDate, String endDate);
     
     Order createOrder(Order order);
     

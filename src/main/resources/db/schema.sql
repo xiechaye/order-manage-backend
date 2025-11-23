@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS orders (
     license_plate VARCHAR(20) COMMENT '车牌号（可选）',
     product_name VARCHAR(200) NOT NULL COMMENT '产品名称',
     product_quantity INT NOT NULL DEFAULT 1 COMMENT '产品数量',
-    order_status TINYINT NOT NULL DEFAULT 0 COMMENT '订单状态：0-待处理，1-已确认，2-已发货，3-已完成，4-已取消',
+    order_status TINYINT NOT NULL DEFAULT 0 COMMENT '订单状态：0-待取货，1-已完成，2-已取消',
     payment_status TINYINT NOT NULL DEFAULT 0 COMMENT '支付状态：0-未支付，1-已支付，2-退款中，3-已退款',
     remarks TEXT COMMENT '订单备注',
     deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除标记：0-未删除，1-已删除',
