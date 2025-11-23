@@ -34,6 +34,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
     
     @Override
+    public IPage<Order> searchByLicensePlate(int currentPage, int pageSize, String licensePlate) {
+        Page<Order> page = new Page<>(currentPage, pageSize);
+        
+        if (licensePlate != null && !licensePlate.trim().isEmpty()) {
+            LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
+            wrapper.like(Order::getLicensePlate, licensePlate.trim())
+                   .orderByDesc(Order::getCreatedAt);
+            return page(page, wrapper);
+        } else {
+            // 如果没有提供车牌号，返回空结果
+            LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
+            wrapper.isNull(Order::getLicensePlate)
+                   .orderByDesc(Order::getCreatedAt);
+            return page(page, wrapper);
+        }
+    }
+    
+    @Override
     @Transactional
     public Order createOrder(Order order) {
         // 生成订单号

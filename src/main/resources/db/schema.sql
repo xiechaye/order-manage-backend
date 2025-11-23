@@ -26,8 +26,11 @@ CREATE TABLE IF NOT EXISTS orders (
     KEY idx_customer_name (customer_name),
     KEY idx_order_status (order_status),
     KEY idx_created_at (created_at),
-    KEY idx_deleted (deleted)
+    KEY idx_deleted (deleted),
+    KEY idx_license_plate (license_plate)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单主表';
+
+
 
 -- 初始测试数据
 INSERT INTO orders (order_no, customer_name, customer_phone, customer_email, license_plate, product_name, product_quantity, order_status, payment_status, remarks, deleted) VALUES

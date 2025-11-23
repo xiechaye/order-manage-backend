@@ -39,6 +39,24 @@ public class OrderController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/license-plate")
+    public ResponseEntity<Map<String, Object>> searchByLicensePlate(
+            @RequestParam(defaultValue = "1") @Min(1) int currentPage,
+            @RequestParam(defaultValue = "10") @Min(1) int pageSize,
+            @RequestParam(required = true) String licensePlate) {
+
+        IPage<Order> page = orderService.searchByLicensePlate(currentPage, pageSize, licensePlate);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("data", page.getRecords());
+        result.put("total", page.getTotal());
+        result.put("currentPage", page.getCurrent());
+        result.put("pageSize", page.getSize());
+
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getOrder(@PathVariable @NotNull Long id) {
         Order order = orderService.getById(id);
