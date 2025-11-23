@@ -16,7 +16,6 @@ CREATE TABLE IF NOT EXISTS orders (
     product_name VARCHAR(200) NOT NULL COMMENT '产品名称',
     product_quantity INT NOT NULL DEFAULT 1 COMMENT '产品数量',
     order_status TINYINT NOT NULL DEFAULT 0 COMMENT '订单状态：0-待取货，1-已完成，2-已取消',
-    payment_status TINYINT NOT NULL DEFAULT 0 COMMENT '支付状态：0-未支付，1-已支付，2-退款中，3-已退款',
     remarks TEXT COMMENT '订单备注',
     deleted TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除标记：0-未删除，1-已删除',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -33,7 +32,7 @@ CREATE TABLE IF NOT EXISTS orders (
 
 
 -- 初始测试数据
-INSERT INTO orders (order_no, customer_name, customer_phone, customer_email, license_plate, product_name, product_quantity, order_status, payment_status, remarks, deleted) VALUES
-('ORD202411230001', '张三', '13800138000', 'zhangsan@example.com', '京A12345', 'iPhone 15 Pro', 1, 1, 1, '请尽快发货', 0),
-('ORD202411230002', '李四', '13900139000', 'lisi@example.com', '沪B67890', 'MacBook Air', 2, 0, 0, '颜色要银色的', 0),
-('ORD202411230003', '王五', '13700137000', 'wangwu@example.com', NULL, 'AirPods Pro', 1, 2, 1, NULL, 0);
+INSERT INTO orders (order_no, customer_name, customer_phone, customer_email, license_plate, product_name, product_quantity, order_status, remarks, deleted) VALUES
+('ORD202411230001', '张三', '13800138000', 'zhangsan@example.com', '京A12345', 'iPhone 15 Pro', 1, 1, '请尽快发货', 0),
+('ORD202411230002', '李四', '13900139000', 'lisi@example.com', '沪B67890', 'MacBook Air', 2, 0, '颜色要银色的', 0),
+('ORD202411230003', '王五', '13700137000', 'wangwu@example.com', NULL, 'AirPods Pro', 1, 2, NULL, 0);

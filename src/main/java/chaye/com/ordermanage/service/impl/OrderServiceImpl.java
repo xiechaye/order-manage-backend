@@ -97,7 +97,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         
         // 设置默认状态
         order.setOrderStatus(0); // 待处理
-        order.setPaymentStatus(0); // 未支付
         
         save(order);
         return order;
@@ -138,15 +137,4 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return updateById(order);
     }
     
-    @Override
-    @Transactional
-    public boolean updatePaymentStatus(Long id, Integer paymentStatus) {
-        Order order = getById(id);
-        if (order == null) {
-            throw new RuntimeException("订单不存在");
-        }
-        
-        order.setPaymentStatus(paymentStatus);
-        return updateById(order);
-    }
 }

@@ -201,31 +201,4 @@ public class OrderController {
         }
     }
 
-    @PutMapping("/{id}/payment-status")
-    public ResponseEntity<Map<String, Object>> updatePaymentStatus(
-            @PathVariable @NotNull Long id,
-            @RequestParam @NotNull Integer paymentStatus) {
-        try {
-            boolean success = orderService.updatePaymentStatus(id, paymentStatus);
-            if (success) {
-                Map<String, Object> result = new HashMap<>();
-                result.put("success", true);
-                result.put("message", "支付状态更新成功");
-
-                return ResponseEntity.ok(result);
-            } else {
-                Map<String, Object> result = new HashMap<>();
-                result.put("success", false);
-                result.put("message", "支付状态更新失败");
-
-                return ResponseEntity.badRequest().body(result);
-            }
-        } catch (Exception e) {
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", false);
-            result.put("message", "支付状态更新失败: " + e.getMessage());
-
-            return ResponseEntity.badRequest().body(result);
-        }
-    }
-}
+  }

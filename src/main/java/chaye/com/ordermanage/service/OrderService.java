@@ -18,5 +18,4 @@ public interface OrderService extends IService<Order> {
     
     boolean updateOrderStatus(Long id, Integer orderStatus);
     
-    boolean updatePaymentStatus(Long id, Integer paymentStatus);
-}
+  }

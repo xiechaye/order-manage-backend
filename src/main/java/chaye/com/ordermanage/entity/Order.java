@@ -70,13 +70,7 @@ public class Order {
      */
     private Integer orderStatus;
     
-    /**
-     * 支付状态（可选）
-     * 订单的支付状态（如：未支付、已支付、已退款等）
-     * 如果为空，默认为未支付状态
-     */
-    private Integer paymentStatus;
-    
+      
     /**
      * 备注（可选）
      * 订单的额外说明或备注信息，可为空
