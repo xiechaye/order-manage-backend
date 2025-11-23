@@ -6,23 +6,20 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/orders")
-@Validated
 @CrossOrigin(origins = "*")
+@AllArgsConstructor
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> listOrders(
@@ -127,7 +124,7 @@ public class OrderController {
         }
     }
 
-    @PatchMapping("/{id}/status")
+    @PutMapping("/{id}/status")
     public ResponseEntity<Map<String, Object>> updateOrderStatus(
             @PathVariable @NotNull Long id,
             @RequestParam @NotNull Integer orderStatus) {
@@ -155,7 +152,7 @@ public class OrderController {
         }
     }
 
-    @PatchMapping("/{id}/payment-status")
+    @PutMapping("/{id}/payment-status")
     public ResponseEntity<Map<String, Object>> updatePaymentStatus(
             @PathVariable @NotNull Long id,
             @RequestParam @NotNull Integer paymentStatus) {

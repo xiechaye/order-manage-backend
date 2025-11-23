@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
@@ -42,11 +41,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                         String.format("%04d", (int)(Math.random() * 10000));
         order.setOrderNo(orderNo);
         
-        // 计算总金额
-        BigDecimal quantity = BigDecimal.valueOf(order.getProductQuantity());
-        BigDecimal totalAmount = order.getUnitPrice().multiply(quantity);
-        order.setTotalAmount(totalAmount);
-        
         // 设置默认状态
         order.setOrderStatus(0); // 待处理
         order.setPaymentStatus(0); // 未支付
@@ -67,12 +61,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             throw new RuntimeException("订单不存在");
         }
         
-        // 重新计算总金额
-        if (order.getProductQuantity() != null && order.getUnitPrice() != null) {
-            BigDecimal quantity = BigDecimal.valueOf(order.getProductQuantity());
-            BigDecimal totalAmount = order.getUnitPrice().multiply(quantity);
-            order.setTotalAmount(totalAmount);
-        }
         
         updateById(order);
         return getById(order.getId());
