@@ -89,8 +89,8 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> getOrder(@PathVariable @NotNull Long id) {
-        Order order = orderService.getById(id);
+    public ResponseEntity<Map<String, Object>> getOrder(@PathVariable @NotNull String id) {
+        Order order = orderService.getById(Long.parseLong(id));
         if (order == null) {
             Map<String, Object> result = new HashMap<>();
             result.put("success", false);
@@ -127,8 +127,8 @@ public class OrderController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> updateOrder(
-            @PathVariable @NotNull Long id, @Valid @RequestBody Order order) {
-        order.setId(id);
+            @PathVariable @NotNull String id, @Valid @RequestBody Order order) {
+        order.setId(Long.parseLong(id));
         try {
             Order updatedOrder = orderService.updateOrder(order);
 
@@ -148,9 +148,10 @@ public class OrderController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deleteOrder(@PathVariable @NotNull Long id) {
+    public ResponseEntity<Map<String, Object>> deleteOrder(@PathVariable @NotNull String id) {
         try {
-            boolean success = orderService.deleteOrder(id);
+            Long orderId = Long.parseLong(id);
+            boolean success = orderService.deleteOrder(orderId);
             if (success) {
                 Map<String, Object> result = new HashMap<>();
                 result.put("success", true);
@@ -175,10 +176,11 @@ public class OrderController {
 
     @PutMapping("/{id}/status")
     public ResponseEntity<Map<String, Object>> updateOrderStatus(
-            @PathVariable @NotNull Long id,
+            @PathVariable @NotNull String id,
             @RequestParam @NotNull Integer orderStatus) {
         try {
-            boolean success = orderService.updateOrderStatus(id, orderStatus);
+            Long orderId = Long.parseLong(id);
+            boolean success = orderService.updateOrderStatus(orderId, orderStatus);
             if (success) {
                 Map<String, Object> result = new HashMap<>();
                 result.put("success", true);
