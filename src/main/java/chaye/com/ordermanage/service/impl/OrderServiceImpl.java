@@ -28,7 +28,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             return orderMapper.searchByKeyword(page, keyword.trim());
         } else {
             LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
-            wrapper.orderByDesc(Order::getCreatedAt);
+            wrapper.eq(Order::getDeleted, 0)
+                   .orderByDesc(Order::getCreatedAt);
             return page(page, wrapper);
         }
     }
