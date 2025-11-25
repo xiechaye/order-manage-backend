@@ -107,7 +107,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Transactional
     public Order updateOrder(Order order) {
         if (order.getId() == null) {
-            throw new IllegalArgumentException("订单ID不能为空");
+            throw new RuntimeException("订单ID不能为空");
         }
         
         Order existingOrder = getById(order.getId());
@@ -115,14 +115,22 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             throw new RuntimeException("订单不存在");
         }
         
+        boolean success = updateById(order);
+        if (!success) {
+            throw new RuntimeException("订单更新失败");
+        }
         
-        updateById(order);
         return getById(order.getId());
     }
     
     @Override
     @Transactional
     public boolean deleteOrder(Long id) {
+        Order existingOrder = getById(id);
+        if (existingOrder == null) {
+            throw new RuntimeException("订单不存在");
+        }
+        
         return removeById(id);
     }
     
@@ -135,7 +143,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         
         order.setOrderStatus(orderStatus);
-        return updateById(order);
+        boolean success = updateById(order);
+        if (!success) {
+            throw new RuntimeException("订单状态更新失败");
+        }
+        
+        return success;
     }
     
 }

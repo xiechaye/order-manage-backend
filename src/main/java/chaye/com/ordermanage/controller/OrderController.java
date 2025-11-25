@@ -1,49 +1,45 @@
 package chaye.com.ordermanage.controller;
 
+import chaye.com.ordermanage.common.Result;
+import chaye.com.ordermanage.dto.UpdateOrderStatusRequest;
 import chaye.com.ordermanage.entity.Order;
 import chaye.com.ordermanage.service.OrderService;
+import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/orders")
-@CrossOrigin(origins = "*")
-@AllArgsConstructor
+@Tag(name = "订单管理")
+@RequiredArgsConstructor
+@SaCheckLogin
 public class OrderController {
 
     private final OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> listOrders(
+    @Operation(summary = "分页查询订单")
+    public Result<Page<Order>> listOrders(
             @RequestParam(defaultValue = "1") @Min(1) int currentPage,
             @RequestParam(defaultValue = "10") @Min(1) int pageSize,
             @RequestParam(required = false) String keyword) {
 
         IPage<Order> page; 
         if (keyword != null && !keyword.trim().isEmpty()) {
-            // 原有keyword搜索逻辑保持不变，用于基础搜索
             page = orderService.pageOrders(currentPage, pageSize, keyword);
         } else {
-            // 无关键字时返回所有订单
             page = orderService.pageOrders(currentPage, pageSize, null);
         }
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("data", page.getRecords());
-        result.put("total", page.getTotal());
-        result.put("currentPage", page.getCurrent());
-        result.put("pageSize", page.getSize());
-
-        return ResponseEntity.ok(result);
+        return Result.success((Page<Order>) page);
     }
 
     /**
@@ -51,7 +47,8 @@ public class OrderController {
      * 支持参数：订单号、客户姓名、车牌号、订单状态、创建日期范围等
      */
     @GetMapping("/search")
-    public ResponseEntity<Map<String, Object>> searchOrders(
+    @Operation(summary = "多条件搜索订单")
+    public Result<Page<Order>> searchOrders(
             @RequestParam(defaultValue = "1") @Min(1) int currentPage,
             @RequestParam(defaultValue = "10") @Min(1) int pageSize,
             @RequestParam(required = false) String orderNo,
@@ -61,146 +58,57 @@ public class OrderController {
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
 
-        // 如果所有条件都为空，则返回所有订单
-        boolean hasSearchCriteria = (orderNo != null && !orderNo.trim().isEmpty()) ||
-                (customerName != null && !customerName.trim().isEmpty()) ||
-                (licensePlate != null && !licensePlate.trim().isEmpty()) ||
-                (orderStatus != null) ||
-                (startDate != null && !startDate.trim().isEmpty()) ||
-                (endDate != null && !endDate.trim().isEmpty());
-
-        IPage<Order> page;
-        if (hasSearchCriteria) {
-            page = orderService.searchOrders(currentPage, pageSize, orderNo, customerName, licensePlate, orderStatus, startDate, endDate);
-        } else {
-            // 没有搜索条件时，返回所有订单
-            page = orderService.pageOrders(currentPage, pageSize, null);
-        }
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("data", page.getRecords());
-        result.put("total", page.getTotal());
-        result.put("currentPage", page.getCurrent());
-        result.put("pageSize", page.getSize());
-        result.put("hasSearchCriteria", hasSearchCriteria);
-
-        return ResponseEntity.ok(result);
+        IPage<Order> page = orderService.searchOrders(currentPage, pageSize, orderNo, customerName, licensePlate, orderStatus, startDate, endDate);
+        return Result.success((Page<Order>) page);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> getOrder(@PathVariable @NotNull String id) {
-        Order order = orderService.getById(Long.parseLong(id));
+    @Operation(summary = "获取订单详情")
+    public Result<Order> getOrder(@PathVariable @NotNull Long id) {
+        Order order = orderService.getById(id);
         if (order == null) {
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", false);
-            result.put("message", "订单不存在");
-            return ResponseEntity.badRequest().body(result);
+            throw new RuntimeException("订单不存在");
         }
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("data", order);
-
-        return ResponseEntity.ok(result);
+        return Result.success(order);
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createOrder(@Valid @RequestBody Order order) {
-        try {
-            Order createdOrder = orderService.createOrder(order);
-
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("data", createdOrder);
-            result.put("message", "订单创建成功");
-
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", false);
-            result.put("message", "订单创建失败: " + e.getMessage());
-
-            return ResponseEntity.badRequest().body(result);
-        }
+    @Operation(summary = "创建订单")
+    public Result<Order> createOrder(@Valid @RequestBody Order order) {
+        // 获取当前登录用户ID
+        Long userId = StpUtil.getLoginIdAsLong();
+        Order createdOrder = orderService.createOrder(order);
+        return Result.success(createdOrder);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateOrder(
-            @PathVariable @NotNull String id, @Valid @RequestBody Order order) {
-        order.setId(Long.parseLong(id));
-        try {
-            Order updatedOrder = orderService.updateOrder(order);
-
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("data", updatedOrder);
-            result.put("message", "订单更新成功");
-
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", false);
-            result.put("message", "订单更新失败: " + e.getMessage());
-
-            return ResponseEntity.badRequest().body(result);
-        }
+    @Operation(summary = "更新订单")
+    public Result<Order> updateOrder(@PathVariable @NotNull Long id, @Valid @RequestBody Order order) {
+        order.setId(id);
+        Order updatedOrder = orderService.updateOrder(order);
+        return Result.success(updatedOrder);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deleteOrder(@PathVariable @NotNull String id) {
-        try {
-            Long orderId = Long.parseLong(id);
-            boolean success = orderService.deleteOrder(orderId);
-            if (success) {
-                Map<String, Object> result = new HashMap<>();
-                result.put("success", true);
-                result.put("message", "订单删除成功");
-
-                return ResponseEntity.ok(result);
-            } else {
-                Map<String, Object> result = new HashMap<>();
-                result.put("success", false);
-                result.put("message", "订单删除失败");
-
-                return ResponseEntity.badRequest().body(result);
-            }
-        } catch (Exception e) {
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", false);
-            result.put("message", "订单删除失败: " + e.getMessage());
-
-            return ResponseEntity.badRequest().body(result);
+    @Operation(summary = "删除订单")
+    public Result<Void> deleteOrder(@PathVariable @NotNull Long id) {
+        boolean success = orderService.deleteOrder(id);
+        if (!success) {
+            throw new RuntimeException("订单删除失败");
         }
+        return Result.success();
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<Map<String, Object>> updateOrderStatus(
-            @PathVariable @NotNull String id,
-            @RequestParam @NotNull Integer orderStatus) {
-        try {
-            Long orderId = Long.parseLong(id);
-            boolean success = orderService.updateOrderStatus(orderId, orderStatus);
-            if (success) {
-                Map<String, Object> result = new HashMap<>();
-                result.put("success", true);
-                result.put("message", "订单状态更新成功");
-
-                return ResponseEntity.ok(result);
-            } else {
-                Map<String, Object> result = new HashMap<>();
-                result.put("success", false);
-                result.put("message", "订单状态更新失败");
-
-                return ResponseEntity.badRequest().body(result);
-            }
-        } catch (Exception e) {
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", false);
-            result.put("message", "订单状态更新失败: " + e.getMessage());
-
-            return ResponseEntity.badRequest().body(result);
+    @Operation(summary = "更新订单状态")
+    public Result<Void> updateOrderStatus(@PathVariable @NotNull Long id, @Valid @RequestBody UpdateOrderStatusRequest request) {
+        // 获取当前登录用户ID
+        Long userId = StpUtil.getLoginIdAsLong();
+        boolean success = orderService.updateOrderStatus(id, request.getOrderStatus());
+        if (!success) {
+            throw new RuntimeException("订单状态更新失败");
         }
+        return Result.success();
     }
 
   }

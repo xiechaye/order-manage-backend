@@ -35,11 +35,17 @@ public class MyBatisConfig implements MetaObjectHandler {
     
     @Override
     public void insertFill(MetaObject metaObject) {
-        // 创建时间填充
+        // 创建时间填充 - 订单实体字段
         this.strictInsertFill(metaObject, "createdAt", LocalDateTime.class, LocalDateTime.now());
         
-        // 更新时间填充
+        // 创建时间填充 - 管理员用户实体字段
+        this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
+        
+        // 更新时间填充 - 订单实体字段
         this.strictInsertFill(metaObject, "updatedAt", LocalDateTime.class, LocalDateTime.now());
+        
+        // 更新时间填充 - 管理员用户实体字段
+        this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
         
         // 逻辑删除字段填充（如果实体有这个字段）
         this.strictInsertFill(metaObject, "deleted", Integer.class, 0);
@@ -47,7 +53,10 @@ public class MyBatisConfig implements MetaObjectHandler {
     
     @Override
     public void updateFill(MetaObject metaObject) {
-        // 更新时间填充
+        // 更新时间填充 - 订单实体字段
         this.strictUpdateFill(metaObject, "updatedAt", LocalDateTime.class, LocalDateTime.now());
+        
+        // 更新时间填充 - 管理员用户实体字段
+        this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
     }
 }

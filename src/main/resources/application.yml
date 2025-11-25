@@ -9,7 +9,6 @@ spring:
   profiles:
     active: dev
 
-
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
@@ -29,3 +28,40 @@ server:
   port: 8080
   servlet:
     context-path: /api
+
+# Sa-Token配置
+sa-token:
+  token-name: Authorization     # token名称（前端Header中的key）
+  token-prefix: Bearer          # token前缀
+  timeout: 2592000              # token有效期（秒）
+  active-timeout: -1            # 活跃过期时间
+  is-concurrent: true           # 是否允许并发登录
+  is-share: true                # 是否共享token
+  token-style: uuid             # token风格
+  is-log: true                  # 是否打印日志
+  is-read-cookie: false         # 是否从cookie读取token
+  is-read-header: true          # 是否从header读取token（重要）
+
+# 解决 OPTIONS 预检请求被拦截的问题（重要的CORS配置）
+cors:
+  enabled: true
+  allowed-origins: "*"
+  allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
+  allowed-headers: "*"
+  allow-credentials: true
+  max-age: 3600
+
+# Swagger/Knife4j配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+    tags-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+
+# Knife4j增强配置
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn

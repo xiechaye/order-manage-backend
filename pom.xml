@@ -69,6 +69,23 @@
             <artifactId>hutool-all</artifactId>
             <version>5.8.22</version>
         </dependency>
+        <!-- Sa-Token 权限认证 -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-spring-boot3-starter</artifactId>
+            <version>1.39.0</version>
+        </dependency>
+        <!-- BCrypt 加密 -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+        <!-- Knife4j API文档 - 适配Spring Boot 3 -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+            <version>4.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>

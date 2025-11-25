@@ -29,10 +29,30 @@ CREATE TABLE IF NOT EXISTS orders (
     KEY idx_license_plate (license_plate)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单主表';
 
+-- 管理员表
+CREATE TABLE IF NOT EXISTS `admin_user` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `username` varchar(32) NOT NULL COMMENT '用户名',
+  `password` varchar(255) NOT NULL COMMENT '密码（BCrypt加密）',
+  `nickname` varchar(32) DEFAULT NULL COMMENT '昵称',
+  `avatar` varchar(255) DEFAULT NULL COMMENT '头像URL',
+  `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '状态：1启用 0禁用',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '逻辑删除：1删除 0未删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理员用户表';
 
 
--- 初始测试数据
+
+-- 订单初始测试数据
 INSERT INTO orders (order_no, customer_name, customer_phone, customer_email, license_plate, product_name, product_quantity, order_status, remarks, deleted) VALUES
 ('ORD202411230001', '张三', '13800138000', 'zhangsan@example.com', '京A12345', 'iPhone 15 Pro', 1, 1, '请尽快发货', 0),
 ('ORD202411230002', '李四', '13900139000', 'lisi@example.com', '沪B67890', 'MacBook Air', 2, 0, '颜色要银色的', 0),
 ('ORD202411230003', '王五', '13700137000', 'wangwu@example.com', NULL, 'AirPods Pro', 1, 2, NULL, 0);
+
+-- 默认管理员账号：admin/123456
+-- 密码使用BCrypt加密：$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE.sQCSGvG.kaqLK
+INSERT INTO `admin_user` (`username`, `password`, `nickname`, `avatar`, `status`) VALUES 
+('admin', '$2a$10$pC.9/1w1qnaRa11jVl026.jQcAfp5wYs5cYhePEGS5xKTFS/3NGMq', '超级管理员', NULL, 1);
