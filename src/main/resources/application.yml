@@ -8,6 +8,13 @@ spring:
     password: 123456
   profiles:
     active: dev
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+  web:
+    resources:
+      static-locations: [classpath:/static/, file:./uploads/]  # 添加文件系统路径到静态资源
 
 mybatis-plus:
   configuration:
@@ -65,3 +72,11 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+
+# 文件上传路径配置
+upload:
+  path: uploads/images/  # 相对于项目根目录的路径，确保以/结尾
+  max-size: 5242880     # 5MB in bytes
+  allowed-types: jpg,jpeg,png,gif,bmp,webp
+
+# 静态资源配置 - 注意这个配置需要与spring配置合并，我会在后面单独配置
